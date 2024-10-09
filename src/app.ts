@@ -8,24 +8,33 @@ import { initORM } from './db.js';
 import { registerUserRoutes } from './modules/user/routes.js';
 import { registerArticleRoutes } from './modules/article/routes.js';
 import { AuthError } from './modules/common/utils.js';
-import path from 'path';
-import { fileURLToPath } from 'url';
-
-
-const __filename = fileURLToPath(import.meta.url); // get the resolved path to the file
-const __dirname = path.dirname(__filename); // get the name of the directory
 
 export async function app_bootstrap(port = 3001, migrate = true) {
-  const db = await initORM();
+
+  logger.info("Starting webserver");
+
+  const db = await initORM({
+    debug: true
+   // logger: msg => logger.log(msg),
+  });
+
 
   if (migrate) {
     // sync the schema
     await db.orm.migrator.up();
   }
 
-  const app = fastify();
-
-  app.register(fastifyRequestLogger);
+  const app = fastify({
+    logger: {
+      transport: {
+        target: 'pino-pretty',
+      // options: {
+      //    translateTime: 'HH:MM:ss Z',
+      //    ignore: 'pid,hostname',
+      //  },
+      },
+    }
+  });
 
   // register JWT plugin
   app.register(fastifyJWT, {
