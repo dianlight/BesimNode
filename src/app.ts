@@ -132,14 +132,14 @@ export async function app_bootstrap(port = 3001, migrate = true) {
   app.register(registerUserRoutes, { prefix: 'user' });
   app.register(registerArticleRoutes, { prefix: 'article' });
 
-  // Register handlers auto-bootstrap
-  app.register(bootstrap, {
-    // Specify directory with our controllers
-    directory: new URL(`controllers`, import.meta.url),
-
-    // Specify mask to match only our controllers
-    mask: /\.controller\./,
-  });  
+  //// Register handlers auto-bootstrap
+  //app.register(bootstrap, {
+  //  // Specify directory with our controllers
+  //  directory: new URL(`controllers`, import.meta.url),
+//
+//    // Specify mask to match only our controllers
+//    mask: /\.controller\./,
+//  });  
   
   await app.ready()
   app.swagger()

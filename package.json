@@ -15,10 +15,13 @@
     "@mikro-orm/migrations": "6.3.13",
     "@mikro-orm/sql-highlighter": "^1.0.1",
     "@mikro-orm/sqlite": "6.3.13",
+    "@visulima/colorize": "^1.4.12",
     "argon2": "^0.41.1",
+    "binary-parser": "github:stereokai/binary-parser",
     "commander": "^12.1.0",
     "fastify": "^5.0.0",
     "fastify-decorators": "^3.16.1",
+    "node-crc": "^3.0.2",
     "pino": "^9.4.0",
     "pino-pretty": "^11.2.2",
     "zod": "^3.23.8"
@@ -29,6 +32,7 @@
     "@mikro-orm/seeder": "6.3.13",
     "@types/node": "^22.7.5",
     "@types/slug": "^5.0.9",
+    "line-by-line": "^0.1.6",
     "nodemon": "^3.1.7",
     "rimraf": "^6.0.1",
     "ts-node": "^10.9.2",
@@ -57,6 +61,11 @@
     ],
     "execMap": {
       "ts": "node --no-warnings=ExperimentalWarning --loader ts-node/esm"
+    }
+  },
+  "pnpm": {
+    "patchedDependencies": {
+      "_binary-parser@2.2.1": "patches/binary-parser@2.2.1.patch"
     }
   }
 }

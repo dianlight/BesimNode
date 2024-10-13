@@ -6,7 +6,12 @@
     "strict": true,
     "outDir": "dist",
     "declaration": true,
-    "experimentalDecorators": true
+    "experimentalDecorators": true,
+    "noUncheckedIndexedAccess": true,
+    "noImplicitAny": true,
+    "exactOptionalPropertyTypes": true,   
+    "allowJs": true,
+    "checkJs": true 
   },
   "include": [
     "./src/**/*.ts"

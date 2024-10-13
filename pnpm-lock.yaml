@@ -4,6 +4,11 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
+patchedDependencies:
+  binary-parser@2.2.1:
+    hash: n4ijyu3owaktsogswxw3isr55a
+    path: patches/binary-parser@2.2.1.patch
+
 dependencies:
   '@fastify/jwt':
     specifier: ^9.0.1
@@ -26,9 +31,15 @@ dependencies:
   '@mikro-orm/sqlite':
     specifier: 6.3.13
     version: 6.3.13(@mikro-orm/core@6.3.13)
+  '@visulima/colorize':
+    specifier: ^1.4.12
+    version: 1.4.12
   argon2:
     specifier: ^0.41.1
     version: 0.41.1
+  binary-parser:
+    specifier: github:stereokai/binary-parser
+    version: 2.2.1(patch_hash=n4ijyu3owaktsogswxw3isr55a)
   commander:
     specifier: ^12.1.0
     version: 12.1.0
@@ -38,6 +49,9 @@ dependencies:
   fastify-decorators:
     specifier: ^3.16.1
     version: 3.16.1(@types/node@22.7.5)(fastify@5.0.0)
+  node-crc:
+    specifier: ^3.0.2
+    version: 3.0.2
   pino:
     specifier: ^9.4.0
     version: 9.4.0
@@ -64,6 +78,9 @@ devDependencies:
   '@types/slug':
     specifier: ^5.0.9
     version: 5.0.9
+  line-by-line:
+    specifier: ^0.1.6
+    version: 0.1.6
   nodemon:
     specifier: ^3.1.7
     version: 3.1.7
@@ -563,6 +580,12 @@ packages:
       - tedious
     dev: false
 
+  /@napi-rs/cli@2.18.4:
+    resolution: {integrity: sha512-SgJeA4df9DE2iAEpr3M2H0OKl/yjtg1BnRI5/JyowS71tUWhrfSu2LT0V3vlHET+g1hBVlrO60PmEXwUEKp8Mg==}
+    engines: {node: '>= 10'}
+    hasBin: true
+    dev: false
+
   /@nodelib/fs.scandir@2.1.5:
     resolution: {integrity: sha512-vq24Bq3ym5HEQm2NKCr3yXDwjc7vTsEThRDnkp2DK9p1uqLR+DHurm/NOTo0KG7HYHU7eppKZj3MyqYuMBf62g==}
     engines: {node: '>= 8'}
@@ -811,6 +834,12 @@ packages:
     resolution: {integrity: sha512-AYnb1nQyY49te+VRAVgmzfcgjYS91mY5P0TKUDCLEM+gNnA+3T6rWITXRLYCpahpqSQbN5cE+gHpnPyXjHWxcw==}
     dev: true
 
+  /@types/node@20.16.11:
+    resolution: {integrity: sha512-y+cTCACu92FyA5fgQSAI8A1H429g7aSK2HsO7K4XYUWc4dY5IUz55JSDIYT6/VsOLfGy8vmvQYC2hfb0iF16Uw==}
+    dependencies:
+      undici-types: 6.19.8
+    dev: false
+
   /@types/node@22.7.5:
     resolution: {integrity: sha512-jML7s2NAzMWc//QSJ1a3prpk78cOPchGvXJsC3C6R6PSMoooztvRVQEz89gmBTBY1SPMaqo5teB4uNHPdetShQ==}
     dependencies:
@@ -819,6 +848,20 @@ packages:
   /@types/slug@5.0.9:
     resolution: {integrity: sha512-6Yp8BSplP35Esa/wOG1wLNKiqXevpQTEF/RcL/NV6BBQaMmZh4YlDwCgrrFSoUE4xAGvnKd5c+lkQJmPrBAzfQ==}
     dev: true
+
+  /@visulima/colorize@1.4.12:
+    resolution: {integrity: sha512-QJGIiU8uVeaLePiqA6+UPWbs6RDTwRj0IaVEdvNC3j6EI/oCozWXrwZFUqjNcyErDuUAqM6lBE+g2UVTddEeug==}
+    engines: {node: '>=18.* <=22.*'}
+    os: [darwin, linux, win32]
+    dependencies:
+      '@visulima/is-ansi-color-supported': 2.2.8
+    dev: false
+
+  /@visulima/is-ansi-color-supported@2.2.8:
+    resolution: {integrity: sha512-onPZ3tqUiv5LGLTrEFt+9Uudy84qUXi1n4yGBiE66xhBl4O0zr+Ypi0fB2lreQcsNkZ0jyQafjERhir4xGQdYg==}
+    engines: {node: '>=18.* <=22.*'}
+    os: [darwin, linux, win32]
+    dev: false
 
   /@vitest/expect@2.1.2:
     resolution: {integrity: sha512-FEgtlN8mIUSEAAnlvn7mP8vzaWhEaAEvhSXCqrsijM7K6QqjB11qoRZYEd4AKSCDz8p0/+yH5LzhZ47qt+EyPg==}
@@ -1089,6 +1132,12 @@ packages:
     resolution: {integrity: sha512-Ceh+7ox5qe7LJuLHoY0feh3pHuUDHAcRUeyL2VYghZwfpkNIy/+8Ocg0a3UuSoYzavmylwuLWQOf3hl0jjMMIw==}
     engines: {node: '>=8'}
     dev: true
+
+  /binary-parser@2.2.1(patch_hash=n4ijyu3owaktsogswxw3isr55a):
+    resolution: {integrity: sha512-5ATpz/uPDgq5GgEDxTB4ouXCde7q2lqAQlSdBRQVl/AJnxmQmhIfyxJx+0MGu//D5rHQifkfGbWWlaysG0o9NA==}
+    engines: {node: '>=12'}
+    dev: false
+    patched: true
 
   /bindings@1.5.0:
     resolution: {integrity: sha512-p2q/t/mhvuOj/UeLlV6566GD/guowlr0hHxClI0W9m7MWYkL1F0hLo+0Aexs9HSPCtR1SXQ0TD3MMKrXZajbiQ==}
@@ -2037,6 +2086,11 @@ packages:
       set-cookie-parser: 2.7.0
     dev: false
 
+  /line-by-line@0.1.6:
+    resolution: {integrity: sha512-MmwVPfOyp0lWnEZ3fBA8Ah4pMFvxO6WgWovqZNu7Y4J0TNnGcsV4S1LzECHbdgqk1hoHc2mFP1Axc37YUqwafg==}
+    engines: {node: '>=4.0.0'}
+    dev: true
+
   /lodash@4.17.21:
     resolution: {integrity: sha512-v2kDEe57lecTulaDIuNTPy3Ry4gLGJ6Z1O3vE1krgXZNrsQ+LFTGHVxVjcXPs17LhbZVGedAJv8XZ1tvj5FvSg==}
 
@@ -2251,6 +2305,15 @@ packages:
   /node-addon-api@8.1.0:
     resolution: {integrity: sha512-yBY+qqWSv3dWKGODD6OGE6GnTX7Q2r+4+DfpqxHSHh8x0B4EKP9+wVGLS6U/AM1vxSNNmUEuIV5EGhYwPpfOwQ==}
     engines: {node: ^18 || ^20 || >= 21}
+    dev: false
+
+  /node-crc@3.0.2:
+    resolution: {integrity: sha512-Z0VwDxKPbmOoAXQCf2c8lW8OkwG8Mwtaq2nFOCUvj8Bqsmg5wbY6BTA0fIhQQRFma2sHNnJGYr+6INcXHWOEUw==}
+    engines: {node: '>=16'}
+    requiresBuild: true
+    dependencies:
+      '@napi-rs/cli': 2.18.4
+      '@types/node': 20.16.11
     dev: false
 
   /node-gyp-build@4.8.2:

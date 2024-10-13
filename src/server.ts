@@ -13,7 +13,7 @@ global.logger = pino({
     target: 'pino-pretty',
     options: {
       colorize: true,
-      
+
     }
   }
 })
@@ -40,7 +40,7 @@ if (options.pizzaType) logger.info(`- ${options.pizzaType}`);
 
 try {
   const { url } = await app_bootstrap();
-  logger.info(`server started at ${url}`);
+  logger.debug(`server started at ${url}`);
 } catch (e) {
   console.error(e);
 }
