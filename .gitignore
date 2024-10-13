@@ -4,3 +4,4 @@ sqlite.db
 dist
 temp
 test/data
+.DS_Store
