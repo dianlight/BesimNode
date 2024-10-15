@@ -1,13 +1,14 @@
 {
-  "name": "@mikro-orm/getting-started",
-  "version": "6.0.0",
+  "name": "besim-node",
+  "version": "0.0.2",
   "type": "module",
-  "description": "MikroORM Getting Started guide",
-  "repository": "https://github.com/mikro-orm/guide",
-  "author": "Martin Adamek",
+  "description": "A BeSmart thermostat local server in node",
+  "repository": "https://github.com/dianlight/BesimNode",
+  "author": "Lucio Tarantino",
   "license": "MIT",
-  "homepage": "https://mikro-orm.io/docs/guide",
+  "homepage": "https://github.com/dianlight",
   "dependencies": {
+    "@astronautlabs/bitstream": "^4.2.2",
     "@fastify/jwt": "^9.0.1",
     "@fastify/swagger": "^9.1.0",
     "@fastify/swagger-ui": "^5.0.1",
@@ -17,26 +18,29 @@
     "@mikro-orm/sqlite": "6.3.13",
     "@visulima/colorize": "^1.4.12",
     "argon2": "^0.41.1",
-    "binary-parser": "github:stereokai/binary-parser",
     "commander": "^12.1.0",
     "fastify": "^5.0.0",
     "fastify-decorators": "^3.16.1",
     "node-crc": "^3.0.2",
     "pino": "^9.4.0",
     "pino-pretty": "^11.2.2",
+    "reflect-metadata": "^0.1.13",
     "zod": "^3.23.8"
   },
   "devDependencies": {
     "@mikro-orm/cli": "6.3.13",
     "@mikro-orm/reflection": "6.3.13",
     "@mikro-orm/seeder": "6.3.13",
+    "@swc/core": "^1.7.35",
     "@types/node": "^22.7.5",
     "@types/slug": "^5.0.9",
+    "@vitest/coverage-v8": "^2.1.2",
     "line-by-line": "^0.1.6",
     "nodemon": "^3.1.7",
     "rimraf": "^6.0.1",
     "ts-node": "^10.9.2",
     "typescript": "5.6.2",
+    "unplugin-swc": "^1.5.1",
     "vitest": "^2.1.2"
   },
   "scripts": {
@@ -64,8 +68,6 @@
     }
   },
   "pnpm": {
-    "patchedDependencies": {
-      "_binary-parser@2.2.1": "patches/binary-parser@2.2.1.patch"
-    }
+    "patchedDependencies": {}
   }
 }

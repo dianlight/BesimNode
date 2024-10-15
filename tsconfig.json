@@ -6,16 +6,18 @@
     "strict": true,
     "outDir": "dist",
     "declaration": true,
+    "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
     "noUncheckedIndexedAccess": true,
     "noImplicitAny": true,
-    "exactOptionalPropertyTypes": true,   
+    "exactOptionalPropertyTypes": true,
     "allowJs": true,
-    "checkJs": true 
+    "checkJs": true,
+    "sourceMap": true,
+    "esModuleInterop": true,
+    "lib": ["ES2015.Reflect"]
   },
-  "include": [
-    "./src/**/*.ts"
-  ],
+  "include": ["./src/**/*.ts"],
   "ts-node": {
     "esm": true,
     "transpileOnly": true

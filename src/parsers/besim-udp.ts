@@ -1,8 +1,7 @@
-import { Parser } from "binary-parser";
 import colorize, { hex } from "@visulima/colorize";
-import { template } from "@visulima/colorize/template";
-import { crc16, crc16xmodem } from "node-crc";
-import { assert } from "console";
+import { crc16xmodem } from "node-crc";
+import { BeSmartFrame } from "./besmart-frame.js"
+import { BitstreamReader } from "@astronautlabs/bitstream";
 
 
 export enum BESIM_COMMANDS {
@@ -86,6 +85,7 @@ export interface IBeSimMessageHeader {
     unk2: number
 }
 
+/*
 const messageHeader_4 = new Parser() // 4
     .endianness("little")
     .uint8("cseq")
@@ -99,11 +99,11 @@ const messageDeviceHeader_8 = new Parser()
         type: messageHeader_4
     })
     .uint32le("deviceId") // 8
-
+*/
 export interface IBeSimRoomMessageHeader extends IBeSimDeviceMessageHeader {
     room: number
 }
-
+/*
 const messageRoomHeader_12 = new Parser()
     .endianness("little")
     .nest({
@@ -117,6 +117,7 @@ const UnknownMessageIgnore = new Parser()
         type: messageDeviceHeader_8
     })
     .uint8("data")
+*/
 
 export enum ROOM_HEATING_CODE {
     HEATING = 0x8E,
@@ -186,7 +187,7 @@ export interface IBeSimStatusMessage extends IBeSimDeviceMessageHeader {
 
 }
 
-
+/*
 const StatusMsg = new Parser()
     .endianness("little")
     .nest({
@@ -252,14 +253,14 @@ const StatusMsg = new Parser()
     .uint16("unk18")
     .uint16("unk19")
     .uint16("unk20")
+*/
 
 
 
 
 
 
-
-
+/*
 const BeSmartPayload = new Parser()
     .endianness("little")
     .uint8("msgId")
@@ -395,7 +396,7 @@ const BeSmartPayload = new Parser()
                         .nest({
                             type: messageDeviceHeader_8
                         })
-                        .uint16le("unk3",/* { assert: 0xF43C } */) // Constants send_PING
+                        .uint16le("unk3",/* { assert: 0xF43C } * /) // Constants send_PING
                     ,
                     //            0x24: StatusMsg, //    STATUS
                     0x24: new Parser() //   STATUS (Short?) - Downlink 1
@@ -461,7 +462,7 @@ const BeSmartPayload = new Parser()
                             type: messageRoomHeader_12
                         })
                         .uint8("unk3", { assert: 0x14 }) // Send 
-                        .uint8("unk3", /*{ assert: 0x0A14 }*/), // Send 
+                        .uint8("unk3", /*{ assert: 0x0A14 }* /), // Send 
                     0x2B: new Parser()  //GetProgramMsg, //   GET_PROGRAM
                         .nest({
                             type: messageRoomHeader_12
@@ -480,6 +481,7 @@ const BeSmartPayload = new Parser()
             return this.startOfMessage + this.meg_length + 8 - this.endOfMessage;
         }
     })
+    */
 //    .seek(function() {
 //        console.log(this.startOfMessage,this.meg_length+8,this.endOfMessage);
 //        console.log(this.startOfMessage+this.meg_length+8-this.endOfMessage);
@@ -489,7 +491,7 @@ const BeSmartPayload = new Parser()
 
 
 
-
+/*
 export interface IBeSmartFrame {
     magic_header: number,
     payload_length: number,
@@ -500,6 +502,7 @@ export interface IBeSmartFrame {
     crc16: number,
     magic_footer: number
 }
+    */
 
 export interface IBeSmartPayload<T extends IBeSimDeviceMessageHeader | IBeSimStatusMessage | IBeSimPingMessage> {
     msgId: BESIM_COMMANDS,
@@ -536,7 +539,7 @@ export interface IBeSimPingMessage extends IBeSimDeviceMessageHeader {
     unk3: number
 }
 
-
+/*
 const BeSmartFrame = new Parser()
     .endianness("little")
     .useContextVars()
@@ -572,15 +575,41 @@ const BeSmartFrame = new Parser()
             }
         }
     })
-    .uint16le("magic_footer",/*{ assert:0xdf2d }*/);
+    .uint16le("magic_footer",/*{ assert:0xdf2d }* /);
+*/
 
-
-export function parseBinary(binary: Buffer): IBeSmartFrame {
-    let message = BeSmartFrame.parse(binary);
+export function parseBinary(binary: Buffer): BeSmartFrame {
+    let message = BeSmartFrame.deserialize(binary);
+    //   if (!message.magic_header) throw new Error("Wrong Magic Header")
+    //   if (!message.magic_footer) throw new Error("Wrong Magic Footer")
     return message;
 }
 
+export function colorHexPayload(payload: string): string {
+    payload = payload.toUpperCase();
+
+    let message = payload.substring(8);
+    message =
+        colorize.redBright(message.substring(0, 2)) + // cseq
+        "|" + colorize.gray(message.substring(2, 4)) + // unk1
+        "|" + colorize.gray(message.substring(4, 8)) + // unk2
+        "|" + colorize.bgBlueBright(message.substring(8, 16)) + // deviceId
+        "|" + message.substring(16).padEnd(2);
+
+    payload =
+        colorize.blue(payload.substring(0, 2)) + // MsgId
+        "|" + colorize.gray(payload.substring(2, 4)) + // Flags
+        "|" + colorize.yellow(payload.substring(4, 8)) + // MessageLenght
+        "|" + colorize.italic(message); // Message 
+
+    //console.log(hexdata, hexdata.length);
+    return "|" + colorize.bold(payload); // Payload
+}
+
+
 export function colorHex(hexdata: string): string {
+
+    hexdata = hexdata.toUpperCase();
 
     let message = hexdata.substring(16 + 8, hexdata.length - 8);
     const message_h = "sq|  |    | device |dt"
@@ -589,7 +618,7 @@ export function colorHex(hexdata: string): string {
         "|" + colorize.gray(message.substring(2, 4)) + // unk1
         "|" + colorize.gray(message.substring(4, 8)) + // unk2
         "|" + colorize.bgBlueBright(message.substring(8, 16)) + // deviceId
-        "|" + message.substring(16);
+        "|" + message.substring(16).padEnd(2);
 
     let payload = hexdata.substring(16, hexdata.length - 8);
     const payload_h = "id|fl| ml |"
@@ -600,7 +629,7 @@ export function colorHex(hexdata: string): string {
         "|" + colorize.italic(message); // Message 
 
     //console.log(hexdata, hexdata.length);
-    return "| mg | pl | sequen |" + (" payload".padEnd(hexdata.length - 1 - 16)) + "|crc |mgk |\n" +
+    return "\n| mg | pl | sequen |" + (" payload".padEnd(hexdata.length - 1 - 16)) + "|crc |mgk |\n" +
         "| mg | pl | sequen |" + (payload_h + " message").padEnd(hexdata.length - 1 - 16) + "|crc |mgk |\n" +
         "| mg | pl | sequen |" + (payload_h + message_h).padEnd(hexdata.length - 1 - 16) + "|crc |mgk |\n" +
         "|" + colorize.red(hexdata.substring(0, 4)) +// Magic
