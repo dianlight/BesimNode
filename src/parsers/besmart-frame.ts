@@ -1,5 +1,6 @@
 import { BitstreamElement, Field, Marker, VariantMarker, ReservedLow, Variant, FieldRef, DeserializeOptions } from '@astronautlabs/bitstream';
 import { crc16xmodem } from 'node-crc';
+import { boolean } from 'zod';
 
 export enum BESMART_CMD {
     SET_MODE = 0x02,
@@ -12,7 +13,7 @@ export enum BESMART_CMD {
     // 0x08    Unknown(from test probe: deviceid)(invalid)
     // 0x09    Unknown(from test probe: deviceid)(invalid)
 
-    // PROGRAM = 0x0A
+    PROGRAM = 0x0A,
 
     SET_T3 = 0x0B,
     SET_T2 = 0x0C,
@@ -20,7 +21,7 @@ export enum BESMART_CMD {
 
     // 0x0e    Unknown(from test probe: deviceid, roomid)(invalid)
     // 0x0f    Unknown(from test probe: deviceid, long message with lots of 0x0  followed by lots of 0xff) Could this be OpenTherm parameters ?
-    // 0x10    Unknown(from test probe: deviceid)(invalid)
+    UNKNOWN_0x10 = 0x10,   // Unknown(from test probe: deviceid)(invalid)
     UNKNOWN_0x11 = 0x11,   // Unknown(from test probe: deviceid, byte = 0xff)
 
     SET_ADVANCE = 0x12,
@@ -92,13 +93,14 @@ export class BeSmartFrame extends BitstreamElement {
     @Field(1) is_uplink!: boolean;
     @Field(1) bit7!: boolean;
     @Field(16, { number: { byteOrder: "little-endian", format: 'unsigned' } }) msg_length!: number
-    @Marker() $startOfMessage!: any;
-    //@Field(i => i.msg_length * 8) message: Buffer;
     @Field(8) cseq!: number;
     @Field(8) unk1!: number;  //", { assert: 0x00 })
     @Field(16, { number: { byteOrder: "little-endian", format: 'unsigned' } }) unk2!: number;
     @Field(32, { number: { byteOrder: "little-endian", format: 'unsigned' } }) device_id!: number;
+    @Marker() $startOfMessage!: any;
     @VariantMarker() $variant!: any;
+    @Marker() $endOfKnownVariant!: any;
+    @Field({ array: { type: Number, elementLength: 8, count: (i) => (i.msg_length * 8 - i.measure('$startOfMessage', '$endOfKnownVariant')) / 8 } }) unknown_part!: number[];
     @Marker() $endOfMessage!: any;
     @Marker() $endOfPayload!: any;
     @Field(16, { number: { byteOrder: "little-endian", format: 'unsigned'/*, writtenValue: i => crc16xmodem(i.serialize(payload_buf)).readUInt16BE() */ } }) crc16!: number;
@@ -148,18 +150,145 @@ export class PingMessage extends BeSmartFrame {
 
 @Variant(i => i.msg_id === BESMART_CMD.SWVERSION)
 export class VersionMessage extends BeSmartFrame {
-    @Field(13, { presentWhen: i => i.is_response }) version!: string;
+    @Field(i => i.msg_length) version!: string;
 }
 
-@Variant(i => i.msg_id === BESMART_CMD.STATUS)
-export class StatusMessage extends BeSmartFrame {
-    @Field(32, { presentWhen: i => !i.is_response, number: { byteOrder: "little-endian", format: 'unsigned' } }) lastseen!: number;
+@Variant(i => i.msg_id === BESMART_CMD.STATUS && !i.is_write)
+export class StatusMessage_r extends BeSmartFrame {
+    @Field(32, { number: { byteOrder: "little-endian", format: 'unsigned' } }) lastseen!: number;
+}
+
+
+export class RoomMessagePart extends BitstreamElement {
+    @Field(32, { number: { byteOrder: "little-endian", format: 'unsigned' } }) room_id!: number;
+    @Field(8, { boolean: { true: 0xF8, false: 0x83, mode: 'undefined' } }) heating!: boolean // 0x8F=yes 0x83=no
+    @Field(4) room_unk1!: number
+    @Field(4) mode!: number
+    @Field(16, { number: { byteOrder: "little-endian", format: 'unsigned' } }) temp!: number
+    @Field(16, { number: { byteOrder: "little-endian", format: 'unsigned' } }) set_temp!: number
+    @Field(16, { number: { byteOrder: "little-endian", format: 'unsigned' } }) t3!: number
+    @Field(16, { number: { byteOrder: "little-endian", format: 'unsigned' } }) t2!: number
+    @Field(16, { number: { byteOrder: "little-endian", format: 'unsigned' } }) t1!: number
+    @Field(16, { number: { byteOrder: "little-endian", format: 'unsigned' } }) max_setpoint!: number
+    @Field(16, { number: { byteOrder: "little-endian", format: 'unsigned' } }) min_setpoint!: number
+    @Field(1) is_unk1!: boolean
+    @Field(1) is_advance!: boolean
+    @Field(1) is_unit_celsius!: boolean
+    @Field(4) sensor_influence!: number
+    @Field(1) is_unk2!: boolean
+    @Field(1) is_winter!: boolean
+    @Field(1) is_cmd_issued!: boolean
+    @Field(1) is_boost!: boolean
+    @Field(5) room_unk3!: number
+    @Field(16, { number: { byteOrder: "little-endian", format: 'unsigned' } }) room_unk4!: number
+    @Field(8) temp_curve!: number
+    @Field(8) heating_setpoint!: number
+}
+
+@Variant(i => i.msg_id === BESMART_CMD.STATUS && i.is_write)
+export class StatusMessage_w extends BeSmartFrame {
+
+    @Field({ array: { type: RoomMessagePart, count: 8 } }) rooms!: RoomMessagePart[];
+
+    // OpenTherm
+    @Field(1) unkot0!: boolean;
+    @Field(1) unkot1!: boolean;
+    @Field(1) unkot2!: boolean;
+    @Field(1) unkot3!: boolean;
+    @Field(1) unkot4!: boolean;
+    @Field(1) boiler_heating!: boolean;
+    @Field(1) dhw_mode!: boolean;
+    @Field(1) unkot7!: boolean;
+    @Field(8, { number: { format: 'unsigned' } }) otFlags2!: number;
+
+    @Field(16, { number: { byteOrder: "little-endian", format: 'signed' } }) otUnk1!: number;
+    @Field(16, { number: { byteOrder: "little-endian", format: 'signed' } }) otUnk2!: number;
+    @Field(16, { number: { byteOrder: "little-endian", format: 'signed' } }) tFLO!: number;
+    @Field(16, { number: { byteOrder: "little-endian", format: 'signed' } }) otUnk4!: number;
+    @Field(16, { number: { byteOrder: "little-endian", format: 'signed' } }) tdH!: number;
+    @Field(16, { number: { byteOrder: "little-endian", format: 'signed' } }) tESt!: number;
+    @Field(16, { number: { byteOrder: "little-endian", format: 'signed' } }) otUnk7!: number;
+    @Field(16, { number: { byteOrder: "little-endian", format: 'signed' } }) otUnk8!: number;
+    @Field(16, { number: { byteOrder: "little-endian", format: 'signed' } }) otUnk9!: number;
+    @Field(16, { number: { byteOrder: "little-endian", format: 'signed' } }) otUnk10!: number;
+
+    @Field(8, { number: { format: 'unsigned' } }) wifi_signal!: number;
+    @Field(8, { number: { format: 'unsigned' } }) unk16!: number;
+    @Field(16, { number: { byteOrder: "little-endian", format: 'unsigned' } }) unk17!: number;
+    @Field(16, { number: { byteOrder: "little-endian", format: 'unsigned' } }) unk18!: number;
+    @Field(16, { number: { byteOrder: "little-endian", format: 'unsigned' } }) unk19!: number;
+    @Field(16, { number: { byteOrder: "little-endian", format: 'unsigned' } }) unk20!: number;
+}
+
+@Variant(i => i.msg_id === BESMART_CMD.GET_PROG)
+export class GetProgramMessage extends BeSmartFrame {
+    @Field(32, { number: { byteOrder: "little-endian", format: 'unsigned' } }) room_id!: number;
+
+    @Field(32, { number: { byteOrder: "little-endian", format: 'unsigned' } }) get_prg_unk1!: number; /* assert: 0x800FE0 */
+}
+
+@Variant(i => i.msg_id === BESMART_CMD.PROGRAM)
+export class ProgramMessage extends BeSmartFrame {
+    @Field(32, { number: { byteOrder: "little-endian", format: 'unsigned' } }) room_id!: number;
+
+    @Field(16, { number: { byteOrder: "little-endian", format: 'unsigned' } }) day!: number;
+
+    @Field(24, { array: { type: Number, elementLength: 8 } }) hours!: number[];
 }
 
 @Variant(i => i.msg_id === BESMART_CMD.PROG_END)
 export class ProgramEndMessage extends BeSmartFrame {
-    @Field(32, { number: { byteOrder: "little-endian", format: 'unsigned' } }) room!: number;
+    @Field(32, { number: { byteOrder: "little-endian", format: 'unsigned' } }) room_id!: number;
 
     @Field(8, { number: { format: 'unsigned' } }) prgend_unk1!: number; /*{ assert: 0x0A14 }*/
     @Field(8, { number: { format: 'unsigned' } }) prgend_unk2!: number;
 }
+
+@Variant(i => i.msg_id === BESMART_CMD.UNKNOWN_0x10)
+export class Unknown10Message extends BeSmartFrame {
+    @Field(16, { number: { format: 'unsigned' } }) u10_unk1!: number;
+}
+
+@Variant(i => i.msg_id === BESMART_CMD.UNKNOWN_0x11)
+export class Unknown11Message extends BeSmartFrame {
+    @Field(8, { number: { format: 'unsigned' } }) u11_unk1!: number;
+}
+
+@Variant(i => i.msg_id === BESMART_CMD.DEVICE_TIME)
+export class DeviceTimeMessage extends BeSmartFrame {
+    @Field(8, { number: { format: 'unsigned' } }) dst!: number; /*{  // 0=no dst 1=dst }*/
+    @Field(8, { number: { format: 'unsigned' } }) dt_unk2!: number;
+    @Field(16, { number: { byteOrder: "little-endian", format: 'unsigned' } }) dt_unk3!: number;
+}
+
+
+
+// 6: new Parser()
+//     .uint8("val") // 0=no dst 1=dst
+//     .uint8("unk3")
+//     .uint16le("unk4")
+//     .uint16le("unk5"),
+// 8: new Parser()
+//     .uint8("val") // 0=no dst 1=dst
+//     .uint8("unk3")
+//     .uint16le("unk4")
+//     .uint32le("unk5"), // ? Time
+// 13: new Parser()
+//     .uint8("val") // 0=no dst 1=dst
+//     .uint8("unk3")
+//     .uint16le("unk4")
+//     .uint32le("unk5") // ? Time
+//     .uint8("unk6")
+//     .uint32le("unk7"),
+// 30: new Parser()
+//     .uint8("val") // 0=no dst 1=dst
+//     .uint8("unk3")
+//     .uint16le("unk4")
+//     .uint32le("unk5")  // ? Time
+//     .uint32le("unk6")
+//     .uint32le("unk7")
+//     .uint32le("unk8")
+//     .uint32le("unk9")
+//     .uint32le("unk10")
+//     .uint16le("unk11"),
+

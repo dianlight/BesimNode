@@ -5,41 +5,40 @@ import { BeSmartFrame } from '../src/parsers/besmart-frame.js';
 import { describe } from 'vitest';
 import LineByLine from 'line-by-line'
 import { crc16xmodem } from 'node-crc';
+import exp from "constants";
 
 
 
 function linesFactory() {
-    //    return new LineByLine('./test/data/only_udp_dedup.txt')
+    //return new LineByLine('./test/data/only_udp_dedup.txt')
     return new LineByLine('./test/data/only_one_udp.txt')
 }
 
 
-describe('UDP Parser', () => {
+describe('UDP Parser', async () => {
     // Test All
-    test('Parse collected udp messages', { timeout: Infinity }, async () => {
-        const parser = vi.fn(parseBinary)
-        let lineNumber = 0;
-        const lines = linesFactory();
-        await new Promise((resolve, reject) => {
-            lines.on('error', (err) => reject(err));
-            lines.on('line', (line) => {
-                lineNumber++;
-                if (lineNumber % 100000 == 0) console.log(`Done Processd ${lineNumber}`);
+    const parser = vi.fn(parseBinary)
+    const lines = linesFactory();
+    await new Promise((resolve, reject) => {
+        lines.on('error', (err) => reject(err));
+        lines.on('line', (line) => {
+            test(`Parse ${line.toString(16)}`, { timeout: Infinity }, async () => {
                 let result: BeSmartFrame;
                 try {
                     result = parser(Buffer.from(line, "hex"));
                     const payload_buf = Buffer.from(result.serialize().subarray(8, 8 + result.payload_length));
                     const crc16 = crc16xmodem(payload_buf).readUInt16BE();
-                    console.log("DATA", result.constructor.name, JSON.stringify(result, (key, value) => {
-                        if (typeof value === 'number') {
-                            return '0x' + value.toString(16).toUpperCase();
-                        }
-                        return value
-                    }), colorHex(line), "\n                   " + colorHexPayload(payload_buf.toString('hex')), crc16, result.crc16);
+                    // console.log("DATA", result.constructor.name, JSON.stringify(result, (key, value) => {
+                    //     if (typeof value === 'number') {
+                    //         return '0x' + value.toString(16).toUpperCase();
+                    //     }
+                    //     return value
+                    // }), colorHex(line), "\n                   " + colorHexPayload(payload_buf.toString('hex')), crc16, result.crc16);
                     expect(result).toBeDefined();
-                    expect(result.magic_header).toBe(true);
-                    expect(result.magic_footer).toBe(true);
-                    expect(result.crc16).toBe(crc16);
+                    expect(result.magic_header, "Wrong Magic_Header").toBe(true);
+                    expect(result.magic_footer, "Wrong Magic_Footer").toBe(true);
+                    expect(result.crc16, "Wrong CRC16").toBe(crc16);
+                    expect(result.constructor.name, `Unknwon Varian 0x${result.msg_id.toString(16)}`).not.toBe('BeSmartFrame');
 
                     // expect(result.payload.endOfMessage).toBe(result.endOfPayload)
                     // expect(result.payload.unknown_remain).toBeDefined()
@@ -47,16 +46,15 @@ describe('UDP Parser', () => {
                 } catch (e) {
                     console.error(colorHex(line), result!, e);
                     lines.end();
-                    reject(e);
+                    throw e
+                    //                    reject(e);
                 }
-            })
-            lines.on('end', () => {
-                console.log(`Ending: ${lineNumber}`)
-                resolve(lineNumber)
             });
         })
-        expect(parser).toHaveReturnedTimes(lineNumber);
-    });
+        lines.on('end', () => {
+            resolve(0)
+        });
+    })
 
     // Test STATUS message
     test.skip('Parse and check types', { timeout: Infinity }, async () => {
@@ -75,8 +73,8 @@ describe('UDP Parser', () => {
                     result = parser(Buffer.from(line, "hex"));
                     //console.log("DATA", result);
                     expect(result).toBeDefined();
-                    expect(result.magic_header).toBe(true);
-                    expect(result.magic_footer).toBe(true);
+                    expect(result.magic_header, "Wrong Magic_Header").toBe(true);
+                    expect(result.magic_footer, "Wrong Magic_Footer").toBe(true);
                     console.log("PayLoad:", result.serialize(result.$startOfPayload, result.$endOfPayload))
                     // expect(result.payload.endOfMessage).toBe(result.endOfPayload)
                     // expect(result.payload.unknown_remain).toBeDefined()
