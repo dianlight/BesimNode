@@ -6,4 +6,4 @@ temp
 test/data
 .DS_Store
 test/.DS_Store
-test/.DS_Store
+apps/udp-server/test/data/*

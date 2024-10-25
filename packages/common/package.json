@@ -1,0 +1,26 @@
+{
+  "name": "common",
+  "description": "Awesome project developed with TypeORM.",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "devDependencies": {
+    "bun-plugin-dts": "^0.3.0",
+    "drizzle-kit": "^0.26.2"
+  },
+  "dependencies": {
+    "drizzle-orm": "^0.35.3",
+    "reflect-metadata": "^0.1.13"
+  },
+  "scripts": {
+    "typeorm_": "typeorm-ts-node-commonjs",
+    "drizzle-kit": "drizzle-kit",
+    "build": "bun run bun.build.js",
+    "clean": "rimraf dist temp *.db",
+    "preinstall": "npx only-allow pnpm",
+    "start": "bun src/index.ts",
+    "test": "bun test test/*"
+  }
+}
