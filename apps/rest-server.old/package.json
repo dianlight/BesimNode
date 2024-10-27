@@ -1,0 +1,58 @@
+{
+  "name": "rest-server-no",
+  "version": "0.0.1",
+  "type": "module",
+  "description": "A BeSmart thermostat local server in node",
+  "repository": "https://github.com/dianlight/BesimNode",
+  "author": "Lucio Tarantino",
+  "license": "MIT",
+  "homepage": "https://github.com/dianlight",
+  "dependencies": {
+    "@astronautlabs/bitstream": "github:dianlight/bitstream#besim_tmp",
+    "@fastify/jwt": "^9.0.1",
+    "@fastify/swagger": "^9.2.0",
+    "@fastify/swagger-ui": "^5.1.0",
+    "@visulima/colorize": "^1.4.12",
+    "commander": "^12.1.0",
+    "common": "workspace:^",
+    "fastify": "^5.0.0",
+    "node-crc": "^3.0.2",
+    "pino": "^9.5.0",
+    "pino-pretty": "^11.3.0",
+    "reflect-metadata": "^0.1.14",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "@swc/core": "^1.7.39",
+    "@types/slug": "^5.0.9",
+    "line-by-line": "^0.1.6"
+  },
+  "scripts": {
+    "clean": "rimraf dist temp *.db",
+    "preinstall": "npx only-allow bun",
+    "build": "tsc && npx mikro-orm-esm cache:generate --combined",
+    "start": "node --no-warnings=ExperimentalWarning --loader ts-node/esm src/server.ts",
+    "dev": "nodemon src/server.ts",
+    "start:prod": "NODE_ENV=production node dist/server.js",
+    "test": "vitest run",
+    "test:bun": "bun test test/*"
+  },
+  "nodemonConfig": {
+    "ignore": [
+      "**/test/**",
+      "**/docs/**",
+      "**/temp/**",
+      "**/dist/**"
+    ],
+    "watch": [
+      "**/src/**",
+      "package.json"
+    ],
+    "execMap": {
+      "ts": "node --no-warnings=ExperimentalWarning --loader ts-node/esm"
+    }
+  },
+  "pnpm": {
+    "patchedDependencies": {}
+  }
+}

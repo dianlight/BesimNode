@@ -1,25 +1,8 @@
 {
-  "name": "BesimNode",
+  "name": "besim-node",
   "version": "1.0.0",
-  "description": "",
+  "author": "Lucio Tarantino",
   "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "lint": "eslint .",
-    "format": "prettier --write .",
-    "preinstall": "npx only-allow pnpm",
-    "prepare": "husky",
-    "common": "pnpm --filter common",
-    "udp-server": "pnpm --filter udp-server"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "engines": {
-    "node": ">=20.17.0",
-    "bun": ">=1.1.30"
-  },
-  "type": "module",
   "devDependencies": {
     "@commitlint/cli": "^19.5.0",
     "@commitlint/config-conventional": "^19.5.0",
@@ -39,5 +22,34 @@
     "typescript-eslint": "^8.11.0",
     "unplugin-swc": "^1.5.1",
     "vitest": "^2.1.3"
-  }
+  },
+  "description": "",
+  "engines": {
+    "bun": ">=1.1.30"
+  },
+  "keywords": [],
+  "license": "ISC",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "lint": "eslint .",
+    "format": "prettier --write .",
+    "preinstall": "npx only-allow bun",
+    "prepare": "husky",
+    "common": "bun --filter common",
+    "udp-server": "bun --filter udp-server",
+    "rest-server": "bun --filter rest-server"
+  },
+  "trustedDependencies": [
+    "@swc/core",
+    "common",
+    "esbuild",
+    "node-crc",
+    "rest-server-no",
+    "udp-server"
+  ],
+  "type": "module",
+  "workspaces": [
+    "packages/*",
+    "apps/*"
+  ]
 }

@@ -19,7 +19,7 @@
     "drizzle-kit": "drizzle-kit",
     "build": "bun run bun.build.js",
     "clean": "rimraf dist temp *.db",
-    "preinstall": "npx only-allow pnpm",
+    "preinstall": "npx only-allow bun",
     "start": "bun src/index.ts",
     "test": "bun test test/*"
   }
