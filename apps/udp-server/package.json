@@ -11,21 +11,21 @@
     "@astronautlabs/bitstream": "github:dianlight/bitstream#besim_tmp",
     "@visulima/colorize": "^1.4.12",
     "commander": "^12.1.0",
-    "common": "workspace:^",
-    "node-crc": "^3.0.2",
+    "common": "workspace:*",
+    "node-crc": "^4.0.0",
     "pino": "^9.5.0",
     "pino-pretty": "^11.3.0",
-    "reflect-metadata": "^0.1.14"
+    "reflect-metadata": "^0.2.2"
   },
   "devDependencies": {
-    "@swc/core": "^1.7.39",
-    "@types/slug": "^5.0.9",
+    "@swc/core": "^1.7.42",
+    "@types/bun": "^1.1.12",
     "line-by-line": "^0.1.6"
   },
   "scripts": {
     "clean": "rimraf dist temp *.db",
     "preinstall": "npx only-allow bun",
-    "build": "bun build src/server.ts --outdir ./dist --target bun --sourcemap=linked --compile",
+    "build": "bun build src/server.ts --outdir ./dist --target bun --sourcemap=linked",
     "build:exe": "bun build src/server.ts --outfile ./dist/server.bun --target bun --sourcemap=linked --compile",
     "start_": "node --no-warnings=ExperimentalWarning --loader ts-node/esm src/server.ts",
     "start": "bun src/server.ts",

@@ -1,4 +1,3 @@
-import { initORM } from './db.js';
 import dgram from 'node:dgram';
 
 export async function app_bootstrap(port = 3001, migrate = true): Promise<dgram.Socket> {
@@ -11,7 +10,6 @@ export async function app_bootstrap(port = 3001, migrate = true): Promise<dgram.
     server.on('listening', () => {
       const address = server.address();
       logger.info(`server listening ${address.address}:${address.port}`);
-      initORM();
     });
 
 

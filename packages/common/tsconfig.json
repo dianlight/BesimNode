@@ -1,8 +1,14 @@
 {
   "extends": "../../tsconfig.json",
   "compilerOptions": {
+    "allowImportingTsExtensions": true,
+    "noEmit": true,
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
-    "sourceMap": true
+    "sourceMap": true,
+    "checkJs": false,
+    "allowJs": false,
+    "isolatedModules": true,
+    "isolatedDeclarations": true
   }
 }

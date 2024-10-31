@@ -578,7 +578,7 @@ const BeSmartFrame = new Parser()
     .uint16le("magic_footer",/*{ assert:0xdf2d }* /);
 */
 
-export function parseBinary(binary: Buffer): BeSmartFrame {
+export function parseBinary(binary: Uint8Array): BeSmartFrame {
     let message = BeSmartFrame.deserialize(binary);
     //   if (!message.magic_header) throw new Error("Wrong Magic Header")
     //   if (!message.magic_footer) throw new Error("Wrong Magic Footer")

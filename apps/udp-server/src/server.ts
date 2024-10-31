@@ -3,6 +3,7 @@ import { Command } from 'commander';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { pino } from 'pino'
+import { initORM } from 'common';
 //import PinoPretty from 'pino-pretty';
 
 
@@ -13,7 +14,6 @@ global.logger = pino({
     target: 'pino-pretty',
     options: {
       colorize: true,
-
     }
   }
 })
@@ -21,9 +21,10 @@ global.logger = pino({
 const program = new Command();
 
 program
-  .option('-d, --debug', 'output extra debugging')
-  .option('-s, --small', 'small pizza size')
-  .option('-p, --pizza-type <type>', 'flavour of pizza');
+  .option('-d, --debug', 'output extra debugging', false)
+  .option('-f --db <db>', 'db to use', __dirname + '/sqldata.db')
+  .option('-h, --host <host>', 'host to listen on', '0.0.0.0')
+  .option('-p, --port <port>', 'port to listen on', parseInt);
 
 program.parse(process.argv);
 
@@ -34,12 +35,11 @@ global.console.error = (...args) => logger.error(args);
 
 const options = program.opts();
 if (options.debug) logger.debug(options);
-logger.info('pizza details:');
-if (options.small) logger.info('- small pizza size');
-if (options.pizzaType) logger.info(`- ${options.pizzaType}`);
+
+initORM(options.db);
 
 try {
-  const server = app_bootstrap();
+  const server = app_bootstrap(options.port, true);
 } catch (e) {
   logger.error(e);
 }

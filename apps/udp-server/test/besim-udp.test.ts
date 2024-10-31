@@ -1,8 +1,8 @@
 import "reflect-metadata";
-import { expect, onTestFailed, test, vi } from 'vitest';
+import { expect, test } from 'bun:test';
 import { BESIM_COMMANDS, colorHex, colorHexPayload, parseBinary } from '../src/parsers/besim-udp.js'
 import { BeSmartFrame } from '../src/parsers/besmart-frame.js';
-import { describe } from 'vitest';
+import { describe } from 'bun:test';
 import LineByLine from 'line-by-line'
 import { crc16xmodem } from 'node-crc';
 import exp from "constants";
@@ -17,15 +17,14 @@ function linesFactory() {
 
 describe('UDP Parser', async () => {
     // Test All
-    const parser = vi.fn(parseBinary)
     const lines = linesFactory();
     await new Promise((resolve, reject) => {
         lines.on('error', (err) => reject(err));
         lines.on('line', (line) => {
-            test(`Parse ${line.toString(16)}`,  async () => {
+            test(`Parse ${line.toString(16)}`, async () => {
                 let result: BeSmartFrame;
                 try {
-                    result = parser(Buffer.from(line, "hex"));
+                    result = parseBinary(Uint8Array.from(Buffer.from(line, "hex")));
                     const payload_buf = Buffer.from(result.serialize().subarray(8, 8 + result.payload_length));
                     const crc16 = crc16xmodem(payload_buf).readUInt16BE();
                     // console.log("DATA", result.constructor.name, JSON.stringify(result, (key, value) => {
@@ -58,7 +57,6 @@ describe('UDP Parser', async () => {
 
     // Test STATUS message
     test.skip('Parse and check types', async () => {
-        const parser = vi.fn(parseBinary)
         let lineNumber = 1;
         const lines = linesFactory();
 
@@ -70,7 +68,7 @@ describe('UDP Parser', async () => {
                 if (lineNumber % 100000 == 0) console.log(`Done Processd ${lineNumber}`);
                 let result: BeSmartFrame;
                 try {
-                    result = parser(Buffer.from(line, "hex"));
+                    result = parseBinary(Uint8Array.from(Buffer.from(line, "hex")));
                     //console.log("DATA", result);
                     expect(result).toBeDefined();
                     expect(result.magic_header, "Wrong Magic_Header").toBe(true);
@@ -154,7 +152,7 @@ describe('UDP Parser', async () => {
             console.error(reason.error, reason.result);
             console.error(colorHex(reason.line));
         })
-        expect(parser).toHaveReturnedTimes(lineNumber);
+        //  expect(parser).toHaveReturnedTimes(lineNumber);
     })
 
 

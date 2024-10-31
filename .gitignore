@@ -7,3 +7,4 @@ test/data
 .DS_Store
 test/.DS_Store
 apps/udp-server/test/data/*
+apps/udp-server/src/sqldata.db
