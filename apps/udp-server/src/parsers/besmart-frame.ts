@@ -1,4 +1,4 @@
-import { BitstreamElement, Field, Marker, VariantMarker, ReservedLow, Variant, FieldRef, DeserializeOptions } from '@astronautlabs/bitstream';
+import { BitstreamElement, Field, Marker, VariantMarker, Variant, FieldRef, DeserializeOptions } from '@astronautlabs/bitstream';
 import { crc16xmodem } from 'node-crc';
 
 export enum BESMART_CMD {

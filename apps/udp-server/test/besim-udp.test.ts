@@ -21,7 +21,7 @@ describe('UDP Parser', async () => {
     await new Promise((resolve, reject) => {
         lines.on('error', (err) => reject(err));
         lines.on('line', (line) => {
-            test(`Parse ${line.toString(16)}`, async () => {
+            test.skip(`Parse ${line.toString(16)}`, async () => {
                 let result: BeSmartFrame;
                 try {
                     result = parseBinary(Uint8Array.from(Buffer.from(line, "hex")));

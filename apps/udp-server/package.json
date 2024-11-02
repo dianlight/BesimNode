@@ -31,6 +31,7 @@
     "start": "bun src/server.ts",
     "start:exe": "dist/server.bun",
     "dev": "bun --watch run src/server.ts",
+    "dev:test": "bun --watch test test/*",
     "start:prod": "NODE_ENV=production bun dist/server.js",
     "test": "bun test test/*"
   },

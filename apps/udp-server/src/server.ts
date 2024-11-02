@@ -1,4 +1,4 @@
-import { app_bootstrap } from './app.js';
+import { UDPServer } from './app.js';
 import { Command } from 'commander';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -22,9 +22,8 @@ const program = new Command();
 
 program
   .option('-d, --debug', 'output extra debugging', false)
-  .option('-f --db <db>', 'db to use', __dirname + '/sqldata.db')
-  .option('-h, --host <host>', 'host to listen on', '0.0.0.0')
-  .option('-p, --port <port>', 'port to listen on', parseInt);
+  .option('-f --db <db>', 'db to use', process.cwd() + '/sqldata.db')
+  .option('-p, --port <port>', 'port to listen on', parseInt, 3001);
 
 program.parse(process.argv);
 
@@ -39,7 +38,7 @@ if (options.debug) logger.debug(options);
 initORM(options.db);
 
 try {
-  const server = app_bootstrap(options.port, true);
+  const server = UDPServer.setup(options.port);
 } catch (e) {
   logger.error(e);
 }
