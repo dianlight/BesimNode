@@ -53,7 +53,7 @@ if (['none', 'active'].indexOf(options.proxyMode) !== -1) {
 
 if (options.debug) logger.debug(options);
 
-initORM(options.db);
+const db = await initORM(options.db);
 
 // None: none, Passive: passive, Active: active
 // Passive: act as trasparent proxy on upstream server and only record messages. Unknown messages are logged and resended.
@@ -84,7 +84,7 @@ if (['passive', 'active'].indexOf(options.proxyMode) !== -1) {
 
 
 try {
-  const server = UDPServer.setup(options.port, hook, errorHook);
+  const server = UDPServer.setup(options.port, hook, errorHook, db);
 } catch (e) {
   logger.error(e);
 }

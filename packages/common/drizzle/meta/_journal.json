@@ -15,6 +15,20 @@
       "when": 1729871187539,
       "tag": "0001_tidy_plazm",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1730643501625,
+      "tag": "0002_funny_the_call",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "6",
+      "when": 1730671715126,
+      "tag": "0003_dark_silvermane",
+      "breakpoints": true
     }
   ]
 }

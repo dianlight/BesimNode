@@ -1,8 +1,7 @@
 import { Logger } from "pino";
 
-export {};
+export { };
 
 declare global {
     var logger: Logger<never, boolean>;
 }
-  

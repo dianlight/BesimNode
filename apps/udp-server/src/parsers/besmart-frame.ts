@@ -131,7 +131,7 @@ export class BeSmartFrame extends BitstreamElement {
      */
     static deserialize<T extends typeof BitstreamElement>(this: T, data: Uint8Array, options?: DeserializeOptions): InstanceType<T> {
         const obj = super.deserialize<typeof BeSmartFrame>(data, options);
-        const payload_buf = Buffer.from(obj.serialize().subarray(8, 8 + obj.payload_length));
+        const payload_buf = Buffer.from(data.subarray(8, 8 + obj.payload_length));
         const crc16 = crc16xmodem(payload_buf).readUInt16BE();
 
         if (crc16 != obj.crc16) console.warn(`Wrong crc16 for payload`, obj)
@@ -153,21 +153,21 @@ export class VersionMessage extends BeSmartFrame {
 }
 
 @Variant(i => i.msg_id === BESMART_CMD.STATUS && !i.is_write)
-export class StatusMessage_r extends BeSmartFrame {
+export class RequestStatusMessage extends BeSmartFrame {
     @Field(32, { number: { byteOrder: "little-endian", format: 'unsigned' } }) lastseen!: number;
 }
 
 
 export class RoomMessagePart extends BitstreamElement {
     @Field(32, { number: { byteOrder: "little-endian", format: 'unsigned' } }) room_id!: number;
-    @Field(8, { boolean: { true: 0xF8, false: 0x83, mode: 'undefined' } }) heating!: boolean // 0x8F=yes 0x83=no
+    @Field(8, { boolean: { true: 0xF8, false: 0x83, mode: 'undefined' } }) is_heating!: boolean // 0x8F=yes 0x83=no
     @Field(4) room_unk1!: number
     @Field(4) mode!: number
-    @Field(16, { number: { byteOrder: "little-endian", format: 'unsigned' } }) temp!: number
-    @Field(16, { number: { byteOrder: "little-endian", format: 'unsigned' } }) set_temp!: number
-    @Field(16, { number: { byteOrder: "little-endian", format: 'unsigned' } }) t3!: number
-    @Field(16, { number: { byteOrder: "little-endian", format: 'unsigned' } }) t2!: number
-    @Field(16, { number: { byteOrder: "little-endian", format: 'unsigned' } }) t1!: number
+    @Field(16, { number: { byteOrder: "little-endian", format: 'unsigned' }, transformers: { read: (v: number) => v / 10, write: (v: number) => v * 10 } }) temp!: number
+    @Field(16, { number: { byteOrder: "little-endian", format: 'unsigned' }, transformers: { read: (v: number) => v / 10, write: (v: number) => v * 10 } }) set_temp!: number
+    @Field(16, { number: { byteOrder: "little-endian", format: 'unsigned' }, transformers: { read: (v: number) => v / 10, write: (v: number) => v * 10 } }) t3!: number
+    @Field(16, { number: { byteOrder: "little-endian", format: 'unsigned' }, transformers: { read: (v: number) => v / 10, write: (v: number) => v * 10 } }) t2!: number
+    @Field(16, { number: { byteOrder: "little-endian", format: 'unsigned' }, transformers: { read: (v: number) => v / 10, write: (v: number) => v * 10 } }) t1!: number
     @Field(16, { number: { byteOrder: "little-endian", format: 'unsigned' } }) max_setpoint!: number
     @Field(16, { number: { byteOrder: "little-endian", format: 'unsigned' } }) min_setpoint!: number
     @Field(1) is_unk1!: boolean
@@ -185,7 +185,7 @@ export class RoomMessagePart extends BitstreamElement {
 }
 
 @Variant(i => i.msg_id === BESMART_CMD.STATUS && i.is_write)
-export class StatusMessage_w extends BeSmartFrame {
+export class StatusMessage extends BeSmartFrame {
 
     @Field({ array: { type: RoomMessagePart, count: 8 } }) rooms!: RoomMessagePart[];
 

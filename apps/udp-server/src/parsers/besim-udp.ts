@@ -607,7 +607,7 @@ export function colorHexPayload(payload: string): string {
 }
 
 
-export function colorHex(hexdata: string): string {
+export function colorHex(hexdata: string, header = true): string {
 
     hexdata = hexdata.toUpperCase();
 
@@ -629,9 +629,9 @@ export function colorHex(hexdata: string): string {
         "|" + colorize.italic(message); // Message 
 
     //console.log(hexdata, hexdata.length);
-    return "\n| mg | pl | sequen |" + (" payload".padEnd(hexdata.length - 1 - 16)) + "|crc |mgk |\n" +
+    return (header ? "\n| mg | pl | sequen |" + (" payload".padEnd(hexdata.length - 1 - 16)) + "|crc |mgk |\n" +
         "| mg | pl | sequen |" + (payload_h + " message").padEnd(hexdata.length - 1 - 16) + "|crc |mgk |\n" +
-        "| mg | pl | sequen |" + (payload_h + message_h).padEnd(hexdata.length - 1 - 16) + "|crc |mgk |\n" +
+        "| mg | pl | sequen |" + (payload_h + message_h).padEnd(hexdata.length - 1 - 16) + "|crc |mgk |\n" : "\n") +
         "|" + colorize.red(hexdata.substring(0, 4)) +// Magic
         "|" + colorize.yellow(hexdata.substring(4, 8)) + // Payload Lenght
         "|" + colorize.white(hexdata.substring(8, 16)) + // sequence

@@ -21,11 +21,18 @@ describe('UDP Parser', async () => {
     await new Promise((resolve, reject) => {
         lines.on('error', (err) => reject(err));
         lines.on('line', (line) => {
-            test.skip(`Parse ${line.toString(16)}`, async () => {
+            test(`Parse ${line.toString(16)}`, async () => {
                 let result: BeSmartFrame;
                 try {
-                    result = parseBinary(Uint8Array.from(Buffer.from(line, "hex")));
-                    const payload_buf = Buffer.from(result.serialize().subarray(8, 8 + result.payload_length));
+                    const lineData = Uint8Array.from(Buffer.from(line, "hex"));
+                    result = parseBinary(lineData);
+                    expect(result).toBeDefined();
+                    expect(result.magic_header, "Wrong Magic_Header").toBe(true);
+                    expect(result.magic_footer, "Wrong Magic_Footer").toBe(true);
+
+                    //expect(result.serialize(), "Wrong Serialize").toEqual(lineData);
+
+                    const payload_buf = Buffer.from(lineData.subarray(8, 8 + result.payload_length));
                     const crc16 = crc16xmodem(payload_buf).readUInt16BE();
                     // console.log("DATA", result.constructor.name, JSON.stringify(result, (key, value) => {
                     //     if (typeof value === 'number') {
@@ -33,9 +40,6 @@ describe('UDP Parser', async () => {
                     //     }
                     //     return value
                     // }), colorHex(line), "\n                   " + colorHexPayload(payload_buf.toString('hex')), crc16, result.crc16);
-                    expect(result).toBeDefined();
-                    expect(result.magic_header, "Wrong Magic_Header").toBe(true);
-                    expect(result.magic_footer, "Wrong Magic_Footer").toBe(true);
                     expect(result.crc16, "Wrong CRC16").toBe(crc16);
                     expect(result.constructor.name, `Unknwon Varian 0x${result.msg_id.toString(16)}`).not.toBe('BeSmartFrame');
 
@@ -49,6 +53,30 @@ describe('UDP Parser', async () => {
                     //                    reject(e);
                 }
             });
+            test(`Parse and Reserialize ${line.toString(16)}`, async () => {
+                let result: BeSmartFrame;
+                let errorMessage: string = colorHex(line) + "\n";
+                try {
+                    const lineData = Uint8Array.from(Buffer.from(line, "hex"));
+                    result = parseBinary(lineData);
+                    expect(result).toBeDefined();
+
+                    errorMessage += colorHex(Buffer.from(result.serialize()).toString('hex'), false) + "\n";
+                    expect(result.serialize(), "Wrong Serialize").toEqual(lineData);
+
+                    const payload_buf = Buffer.from(result.serialize().subarray(8, 8 + result.payload_length));
+                    errorMessage += colorHexPayload(payload_buf.toString('hex')) + "\n";
+                    const crc16 = crc16xmodem(payload_buf).readUInt16BE();
+                    expect(result.crc16, "Wrong CRC16").toBe(crc16);
+                    expect(result.constructor.name, `Unknwon Varian 0x${result.msg_id.toString(16)}`).not.toBe('BeSmartFrame');
+
+                } catch (e) {
+                    console.error(errorMessage, result!, e);
+                    lines.end();
+                    throw e
+                }
+            });
+
         })
         lines.on('end', () => {
             resolve(0)

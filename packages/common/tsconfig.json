@@ -8,7 +8,6 @@
     "sourceMap": true,
     "checkJs": false,
     "allowJs": false,
-    "isolatedModules": true,
-    "isolatedDeclarations": true
+    "isolatedModules": true
   }
 }

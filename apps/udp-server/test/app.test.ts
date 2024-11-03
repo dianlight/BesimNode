@@ -2,7 +2,7 @@ import "reflect-metadata";
 import { afterAll, beforeAll, beforeEach, describe, expect, test } from "bun:test";
 import { UDPServer } from '../src/app.ts';
 import { serve, sleep, udp } from "bun";
-import { BeSmartFrame, DeviceTimeMessage, GetProgramMessage, PingMessage, ProgramEndMessage, ProgramMessage, StatusMessage_r, StatusMessage_w, Unknown11Message, VersionMessage } from "../src/parsers/besmart-frame.ts";
+import { BeSmartFrame, DeviceTimeMessage, GetProgramMessage, PingMessage, ProgramEndMessage, ProgramMessage, RequestStatusMessage, StatusMessage, Unknown11Message, VersionMessage } from "../src/parsers/besmart-frame.ts";
 
 
 let client: udp.ConnectedSocket<'uint8array'>;
@@ -19,14 +19,14 @@ beforeAll(async () => {
         },
         socket: {
             drain(socket) {
-                console.error("client drain");
+                console.debug("client drain");
             },
         }
     });
 });
 
 beforeEach(async () => {
-    server.parsedData = [];
+    server.parsedData.pop();
 })
 
 
@@ -89,7 +89,7 @@ describe("UDP Server Test", () => {
         expect(server.parsedData[0]).toBeDefined();
         expect(server.parsedData[0].magic_header, "Wrong Magic_Header").toBe(true);
         expect(server.parsedData[0].magic_footer, "Wrong Magic_Footer").toBe(true);
-        expect(server.parsedData[0].constructor.name, `Unknwon Varian 0x${server.parsedData[0].msg_id.toString(16)}`).toBe(StatusMessage_r.name);
+        expect(server.parsedData[0].constructor.name, `Unknwon Varian 0x${server.parsedData[0].msg_id.toString(16)}`).toBe(RequestStatusMessage.name);
     });
     test("STATUS WRITE", async () => {
         expect(client.send(Buffer.from('FAD4FC005C4A00002446F000FF020400AAF28D23A62743048302EC00B400D000CA00B400BC026C02508100000C05615004088302E600BA00BC00BA008C0020032C01505100000C05FFFFFFFF00000000000000000000000000000000010000000000FFFFFFFF00000000000000000000000000000000010000000000FFFFFFFF00000000000000000000000000000000010000000000FFFFFFFF00000000000000000000000000000000010000000000FFFFFFFF00000000000000000000000000000000010000000000FFFFFFFF0000000000000000000000000000000001000000000085623F0005004E01320008010000D0020900000000003407140A0000F401000068B52DDF', 'hex'))).toBe(true);
@@ -98,7 +98,7 @@ describe("UDP Server Test", () => {
         expect(server.parsedData[0]).toBeDefined();
         expect(server.parsedData[0].magic_header, "Wrong Magic_Header").toBe(true);
         expect(server.parsedData[0].magic_footer, "Wrong Magic_Footer").toBe(true);
-        expect(server.parsedData[0].constructor.name, `Unknwon Varian 0x${server.parsedData[0].msg_id.toString(16)}`).toBe(StatusMessage_w.name);
+        expect(server.parsedData[0].constructor.name, `Unknwon Varian 0x${server.parsedData[0].msg_id.toString(16)}`).toBe(StatusMessage.name);
     });
     for (let [index, message] of [
         'FAD42A001A0600000A461E00FF020400AAF28D23A627430400000000000000001121221111111111111111111111111111001C812DDF',

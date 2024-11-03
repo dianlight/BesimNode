@@ -9,3 +9,4 @@ test/.DS_Store
 apps/udp-server/test/data/*
 apps/udp-server/src/sqldata.db
 apps/udp-server/sqldata.db
+packages/common/sqldata.db
