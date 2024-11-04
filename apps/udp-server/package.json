@@ -8,7 +8,7 @@
   "license": "MIT",
   "homepage": "https://github.com/dianlight",
   "dependencies": {
-    "@astronautlabs/bitstream": "github:dianlight/bitstream#besim_tmp",
+    "@astronautlabs/bitstream": "github:dianlight/bitstream#23959d94d6289dafcd04e47a4c90a88861be3493",
     "@visulima/colorize": "^1.4.12",
     "commander": "^12.1.0",
     "common": "workspace:*",
@@ -20,7 +20,7 @@
     "typia": "^6.11.3"
   },
   "devDependencies": {
-    "@swc/core": "^1.7.42",
+    "@swc/core": "^1.8.0",
     "@types/bun": "^1.1.13",
     "line-by-line": "^0.1.6"
   },

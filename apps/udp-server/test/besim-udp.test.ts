@@ -54,7 +54,7 @@ describe('UDP Parser', async () => {
                 }
             });
             test(`Parse and Reserialize ${line.toString(16)}`, async () => {
-                let result: BeSmartFrame;
+                let result, result2: BeSmartFrame;
                 let errorMessage: string = colorHex(line) + "\n";
                 try {
                     const lineData = Uint8Array.from(Buffer.from(line, "hex"));
@@ -62,7 +62,9 @@ describe('UDP Parser', async () => {
                     expect(result).toBeDefined();
 
                     errorMessage += colorHex(Buffer.from(result.serialize()).toString('hex'), false) + "\n";
-                    expect(result.serialize(), "Wrong Serialize").toEqual(lineData);
+                    const reserialized = result.serialize();
+                    result2 = parseBinary(reserialized);
+                    expect(reserialized, "Wrong Serialize").toEqual(lineData);
 
                     const payload_buf = Buffer.from(result.serialize().subarray(8, 8 + result.payload_length));
                     errorMessage += colorHexPayload(payload_buf.toString('hex')) + "\n";
@@ -71,7 +73,7 @@ describe('UDP Parser', async () => {
                     expect(result.constructor.name, `Unknwon Varian 0x${result.msg_id.toString(16)}`).not.toBe('BeSmartFrame');
 
                 } catch (e) {
-                    console.error(errorMessage, result!, e);
+                    console.error(errorMessage, result!, result2!, e);
                     lines.end();
                     throw e
                 }
