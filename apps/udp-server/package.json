@@ -9,6 +9,7 @@
   "homepage": "https://github.com/dianlight",
   "dependencies": {
     "@astronautlabs/bitstream": "github:dianlight/bitstream#23959d94d6289dafcd04e47a4c90a88861be3493",
+    "@types/line-by-line": "^0.1.9",
     "@visulima/colorize": "^1.4.12",
     "commander": "^12.1.0",
     "common": "workspace:*",

@@ -1,14 +1,22 @@
 import "reflect-metadata";
 import { afterAll, beforeAll, beforeEach, describe, expect, test } from "bun:test";
-import { UDPServer } from '../src/app.ts';
-import { serve, sleep, udp } from "bun";
-import { BeSmartFrame, DeviceTimeMessage, GetProgramMessage, PingMessage, ProgramEndMessage, ProgramMessage, RequestStatusMessage, StatusMessage, Unknown11Message, VersionMessage } from "../src/parsers/besmart-frame.ts";
+import { UDPServer } from '../src/app.js';
+import { sleep, udp } from "bun";
+import { DeviceTimeMessage, GetProgramMessage, PingMessage, ProgramEndMessage, ProgramMessage, RequestStatusMessage, StatusMessage, Unknown11Message, VersionMessage } from "../src/parsers/besmart-frame.js";
+import { pino } from "pino";
 
 
 let client: udp.ConnectedSocket<'uint8array'>;
 let server: UDPServer;
 
-global.logger = console;
+global.logger = pino({
+    transport: {
+        target: 'pino-pretty',
+        options: {
+            colorize: true,
+        }
+    }
+})
 
 beforeAll(async () => {
     server = await UDPServer.setup();
@@ -52,9 +60,9 @@ describe("UDP Server Test", () => {
             await sleep(1);
             expect(server.parsedData.length).toBe(1);
             expect(server.parsedData[0]).toBeDefined();
-            expect(server.parsedData[0].magic_header, "Wrong Magic_Header").toBe(true);
-            expect(server.parsedData[0].magic_footer, "Wrong Magic_Footer").toBe(true);
-            expect(server.parsedData[0].constructor.name, `Unknwon Varian 0x${server.parsedData[0].msg_id.toString(16)}`).toBe(PingMessage.name);
+            expect(server.parsedData[0]?.magic_header, "Wrong Magic_Header").toBe(true);
+            expect(server.parsedData[0]?.magic_footer, "Wrong Magic_Footer").toBe(true);
+            expect(server.parsedData[0]?.constructor.name, `Unknwon Varian 0x${server.parsedData[0]?.msg_id.toString(16)}`).toBe(PingMessage.name);
         });
     }
     for (let [index, message] of [
@@ -68,9 +76,9 @@ describe("UDP Server Test", () => {
             await sleep(1);
             expect(server.parsedData.length).toBe(1);
             expect(server.parsedData[0]).toBeDefined();
-            expect(server.parsedData[0].magic_header, "Wrong Magic_Header").toBe(true);
-            expect(server.parsedData[0].magic_footer, "Wrong Magic_Footer").toBe(true);
-            expect(server.parsedData[0].constructor.name, `Unknwon Varian 0x${server.parsedData[0].msg_id.toString(16)}`).toBe(VersionMessage.name);
+            expect(server.parsedData[0]?.magic_header, "Wrong Magic_Header").toBe(true);
+            expect(server.parsedData[0]?.magic_footer, "Wrong Magic_Footer").toBe(true);
+            expect(server.parsedData[0]?.constructor.name, `Unknwon Varian 0x${server.parsedData[0]?.msg_id.toString(16)}`).toBe(VersionMessage.name);
         });
     }
     test("PROGRAM_END", async () => {
@@ -78,27 +86,27 @@ describe("UDP Server Test", () => {
         await sleep(1);
         expect(server.parsedData.length).toBe(1);
         expect(server.parsedData[0]).toBeDefined();
-        expect(server.parsedData[0].magic_header, "Wrong Magic_Header").toBe(true);
-        expect(server.parsedData[0].magic_footer, "Wrong Magic_Footer").toBe(true);
-        expect(server.parsedData[0].constructor.name, `Unknwon Varian 0x${server.parsedData[0].msg_id.toString(16)}`).toBe(ProgramEndMessage.name);
+        expect(server.parsedData[0]?.magic_header, "Wrong Magic_Header").toBe(true);
+        expect(server.parsedData[0]?.magic_footer, "Wrong Magic_Footer").toBe(true);
+        expect(server.parsedData[0]?.constructor.name, `Unknwon Varian 0x${server.parsedData[0]?.msg_id.toString(16)}`).toBe(ProgramEndMessage.name);
     });
     test("STATUS READ", async () => {
         expect(client.send(Buffer.from('FAD41000FFFFFFFF240F0400FF000000AAF28D23009B366633562DDF', 'hex'))).toBe(true);
         await sleep(1);
         expect(server.parsedData.length).toBe(1);
         expect(server.parsedData[0]).toBeDefined();
-        expect(server.parsedData[0].magic_header, "Wrong Magic_Header").toBe(true);
-        expect(server.parsedData[0].magic_footer, "Wrong Magic_Footer").toBe(true);
-        expect(server.parsedData[0].constructor.name, `Unknwon Varian 0x${server.parsedData[0].msg_id.toString(16)}`).toBe(RequestStatusMessage.name);
+        expect(server.parsedData[0]?.magic_header, "Wrong Magic_Header").toBe(true);
+        expect(server.parsedData[0]?.magic_footer, "Wrong Magic_Footer").toBe(true);
+        expect(server.parsedData[0]?.constructor.name, `Unknwon Varian 0x${server.parsedData[0]?.msg_id.toString(16)}`).toBe(RequestStatusMessage.name);
     });
     test("STATUS WRITE", async () => {
         expect(client.send(Buffer.from('FAD4FC005C4A00002446F000FF020400AAF28D23A62743048302EC00B400D000CA00B400BC026C02508100000C05615004088302E600BA00BC00BA008C0020032C01505100000C05FFFFFFFF00000000000000000000000000000000010000000000FFFFFFFF00000000000000000000000000000000010000000000FFFFFFFF00000000000000000000000000000000010000000000FFFFFFFF00000000000000000000000000000000010000000000FFFFFFFF00000000000000000000000000000000010000000000FFFFFFFF0000000000000000000000000000000001000000000085623F0005004E01320008010000D0020900000000003407140A0000F401000068B52DDF', 'hex'))).toBe(true);
         await sleep(1);
         expect(server.parsedData.length).toBe(1);
         expect(server.parsedData[0]).toBeDefined();
-        expect(server.parsedData[0].magic_header, "Wrong Magic_Header").toBe(true);
-        expect(server.parsedData[0].magic_footer, "Wrong Magic_Footer").toBe(true);
-        expect(server.parsedData[0].constructor.name, `Unknwon Varian 0x${server.parsedData[0].msg_id.toString(16)}`).toBe(StatusMessage.name);
+        expect(server.parsedData[0]?.magic_header, "Wrong Magic_Header").toBe(true);
+        expect(server.parsedData[0]?.magic_footer, "Wrong Magic_Footer").toBe(true);
+        expect(server.parsedData[0]?.constructor.name, `Unknwon Varian 0x${server.parsedData[0]?.msg_id.toString(16)}`).toBe(StatusMessage.name);
     });
     for (let [index, message] of [
         'FAD42A001A0600000A461E00FF020400AAF28D23A627430400000000000000001121221111111111111111111111111111001C812DDF',
@@ -114,10 +122,10 @@ describe("UDP Server Test", () => {
             await sleep(1);
             expect(server.parsedData.length).toBe(1);
             expect(server.parsedData[0]).toBeDefined();
-            expect(server.parsedData[0].magic_header, "Wrong Magic_Header").toBe(true);
-            expect(server.parsedData[0].magic_footer, "Wrong Magic_Footer").toBe(true);
+            expect(server.parsedData[0]?.magic_header, "Wrong Magic_Header").toBe(true);
+            expect(server.parsedData[0]?.magic_footer, "Wrong Magic_Footer").toBe(true);
             //  console.log(server.parsedData[0].constructor.name, `Unknwon Varian 0x${server.parsedData[0].msg_id.toString(16)}`);
-            expect(server.parsedData[0].constructor.name, `Unknwon Varian 0x${server.parsedData[0].msg_id.toString(16)}`).toBe(ProgramMessage.name);
+            expect(server.parsedData[0]?.constructor.name, `Unknwon Varian 0x${server.parsedData[0]?.msg_id.toString(16)}`).toBe(ProgramMessage.name);
         });
     }
     for (let [index, message] of [
@@ -132,10 +140,10 @@ describe("UDP Server Test", () => {
             await sleep(1);
             expect(server.parsedData.length).toBe(1);
             expect(server.parsedData[0]).toBeDefined();
-            expect(server.parsedData[0].magic_header, "Wrong Magic_Header").toBe(true);
-            expect(server.parsedData[0].magic_footer, "Wrong Magic_Footer").toBe(true);
+            expect(server.parsedData[0]?.magic_header, "Wrong Magic_Header").toBe(true);
+            expect(server.parsedData[0]?.magic_footer, "Wrong Magic_Footer").toBe(true);
             //  console.log(server.parsedData[0].constructor.name, `Unknwon Varian 0x${server.parsedData[0].msg_id.toString(16)}`);
-            expect(server.parsedData[0].constructor.name, `Unknwon Varian 0x${server.parsedData[0].msg_id.toString(16)}`).toBe(GetProgramMessage.name);
+            expect(server.parsedData[0]?.constructor.name, `Unknwon Varian 0x${server.parsedData[0]?.msg_id.toString(16)}`).toBe(GetProgramMessage.name);
         });
     }
     for (let [index, message] of [
@@ -148,10 +156,10 @@ describe("UDP Server Test", () => {
             await sleep(1);
             expect(server.parsedData.length).toBe(1);
             expect(server.parsedData[0]).toBeDefined();
-            expect(server.parsedData[0].magic_header, "Wrong Magic_Header").toBe(true);
-            expect(server.parsedData[0].magic_footer, "Wrong Magic_Footer").toBe(true);
+            expect(server.parsedData[0]?.magic_header, "Wrong Magic_Header").toBe(true);
+            expect(server.parsedData[0]?.magic_footer, "Wrong Magic_Footer").toBe(true);
             //  console.log(server.parsedData[0].constructor.name, `Unknwon Varian 0x${server.parsedData[0].msg_id.toString(16)}`);
-            expect(server.parsedData[0].constructor.name, `Unknwon Varian 0x${server.parsedData[0].msg_id.toString(16)}`).toBe(DeviceTimeMessage.name);
+            expect(server.parsedData[0]?.constructor.name, `Unknwon Varian 0x${server.parsedData[0]?.msg_id.toString(16)}`).toBe(DeviceTimeMessage.name);
         });
     }
     for (let [index, message] of [
@@ -166,10 +174,10 @@ describe("UDP Server Test", () => {
             await sleep(1);
             expect(server.parsedData.length).toBe(1);
             expect(server.parsedData[0]).toBeDefined();
-            expect(server.parsedData[0].magic_header, "Wrong Magic_Header").toBe(true);
-            expect(server.parsedData[0].magic_footer, "Wrong Magic_Footer").toBe(true);
+            expect(server.parsedData[0]?.magic_header, "Wrong Magic_Header").toBe(true);
+            expect(server.parsedData[0]?.magic_footer, "Wrong Magic_Footer").toBe(true);
             //  console.log(server.parsedData[0].constructor.name, `Unknwon Varian 0x${server.parsedData[0].msg_id.toString(16)}`);
-            expect(server.parsedData[0].constructor.name, `Unknwon Varian 0x${server.parsedData[0].msg_id.toString(16)}`).toBe(Unknown11Message.name);
+            expect(server.parsedData[0]?.constructor.name, `Unknwon Varian 0x${server.parsedData[0]?.msg_id.toString(16)}`).toBe(Unknown11Message.name);
         });
     }
     test.skip(`?`, async () => {
@@ -177,9 +185,9 @@ describe("UDP Server Test", () => {
         await sleep(1);
         expect(server.parsedData.length).toBe(1);
         expect(server.parsedData[0]).toBeDefined();
-        expect(server.parsedData[0].magic_header, "Wrong Magic_Header").toBe(true);
-        expect(server.parsedData[0].magic_footer, "Wrong Magic_Footer").toBe(true);
+        expect(server.parsedData[0]?.magic_header, "Wrong Magic_Header").toBe(true);
+        expect(server.parsedData[0]?.magic_footer, "Wrong Magic_Footer").toBe(true);
         //  console.log(server.parsedData[0].constructor.name, `Unknwon Varian 0x${server.parsedData[0].msg_id.toString(16)}`);
-        expect(server.parsedData[0].constructor.name, `Unknwon Varian 0x${server.parsedData[0].msg_id.toString(16)}`).toBe(VersionMessage.name);
+        expect(server.parsedData[0]?.constructor.name, `Unknwon Varian 0x${server.parsedData[0]?.msg_id.toString(16)}`).toBe(VersionMessage.name);
     });
 });

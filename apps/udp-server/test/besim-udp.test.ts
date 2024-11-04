@@ -19,8 +19,8 @@ describe('UDP Parser', async () => {
     // Test All
     const lines = linesFactory();
     await new Promise((resolve, reject) => {
-        lines.on('error', (err) => reject(err));
-        lines.on('line', (line) => {
+        lines.on('error', (err: any) => reject(err));
+        lines.on('line', (line: any) => {
             test(`Parse ${line.toString(16)}`, async () => {
                 let result: BeSmartFrame;
                 try {
@@ -48,7 +48,7 @@ describe('UDP Parser', async () => {
                     // expect(result.payload.unknown_remain).toHaveLength(0)
                 } catch (e) {
                     console.error(colorHex(line), result!, e);
-                    lines.end();
+                    lines.close();
                     throw e
                     //                    reject(e);
                 }
@@ -74,7 +74,7 @@ describe('UDP Parser', async () => {
 
                 } catch (e) {
                     console.error(errorMessage, result!, result2!, e);
-                    lines.end();
+                    lines.close();
                     throw e
                 }
             });
@@ -91,8 +91,8 @@ describe('UDP Parser', async () => {
         const lines = linesFactory();
 
         const resp = await new Promise((resolve, reject) => {
-            lines.on('error', (err) => reject(err));
-            lines.on('line', (line) => {
+            lines.on('error', (err: any) => reject(err));
+            lines.on('line', (line: any) => {
                 // console.log(line);
                 lineNumber++;
                 if (lineNumber % 100000 == 0) console.log(`Done Processd ${lineNumber}`);

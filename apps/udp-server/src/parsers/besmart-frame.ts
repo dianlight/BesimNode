@@ -80,7 +80,7 @@ export class BeSmartFrame extends BitstreamElement {
     @Field(16, { boolean: { true: 0xfad4, mode: 'false-unless' } }) magic_header!: boolean;
     @Field(16, { number: { byteOrder: "little-endian", format: 'unsigned' }/*, writtenValue: i => i.measure('$startOfPayload', '$endOfPayload')*/ }) payload_length!: number;
     @Field(32, { number: { byteOrder: "little-endian", format: 'unsigned' } }) sequence!: number;
-    @Marker() $startOfPayload!: any;
+    @Field(0, { isIgnored: true }) /*@Marker()*/ $startOfPayload!: any;
     //  @Field(i => i.payload_length * 8, { serializer: new BufferNullSerializer() }) payload: Buffer;
     @Field(8) msg_id!: number;
     @Field(1) is_response!: boolean;
@@ -96,12 +96,12 @@ export class BeSmartFrame extends BitstreamElement {
     @Field(8) unk1!: number;  //", { assert: 0x00 })
     @Field(16, { number: { byteOrder: "little-endian", format: 'unsigned' } }) unk2!: number;
     @Field(32, { number: { byteOrder: "little-endian", format: 'unsigned' } }) device_id!: number;
-    @Marker() $startOfMessage!: any;
+    @Field(0, { isIgnored: true }) /*@Marker()*/ $startOfMessage!: any;
     @VariantMarker() $variant!: any;
-    @Marker() $endOfKnownVariant!: any;
+    @Field(0, { isIgnored: true }) /*@Marker()*/ $endOfKnownVariant!: any;
     @Field({ array: { type: Number, elementLength: 8, count: (i) => (i.msg_length * 8 - i.measure('$startOfMessage', '$endOfKnownVariant')) / 8 } }) unknown_part!: number[];
-    @Marker() $endOfMessage!: any;
-    @Marker() $endOfPayload!: any;
+    @Field(0, { isIgnored: true }) /*@Marker()*/ $endOfMessage!: any;
+    @Field(0, { isIgnored: true }) /*@Marker()*/ $endOfPayload!: any;
     @Field(16, { number: { byteOrder: "little-endian", format: 'unsigned'/*, writtenValue: i => crc16xmodem(i.serialize(payload_buf)).readUInt16BE() */ } }) crc16!: number;
     @Field(16, { boolean: { true: 0x2ddf, mode: 'false-unless' } }) magic_footer!: boolean;
 
